@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+	<div id='header'>
+		<div id='title'></div>
+		<div id='timer'></div>
+		<div id='score'></div>
+	</div>
+	
+	<div id='body'>
+		<div id='triviaQuestion'></div><br>
+		<div id='triviaAnswers'></div>
+	</div>
+
+	<div id='footer'></div>
+	
+
+
+	<script type="text/javascript">
+
+
+		function president(name,number,imagePath) {
+			this.name = name;
+			this.number = number;
+			this.imagePath = imagePath;
+		}
+
+		/* CREATING TRIVIA QUESTIONS */
+		function triviaQuestion(questionType,questionText,questionImage,rightAnswer,wrongAnswersArray) {
+			/* Properties */
+			this.questionType = questionType;					// Either (1) 'text', (2) 'picture', or (3) 'sound'
+			this.questionText = questionText;					// The trivia question
+			this.questionImage = questionImage;
+			this.rightAnswer = rightAnswer;						// The correct answer
+			this.wrongAnswersArray = wrongAnswersArray;			// An array containing all the wrong ansers			
+
+			//This outputs an array containing the correct answer mixed in randomly with all the wrong answers
+			this.randomOptionsArray = function() {
+				var nRandomOptionsArray = wrongAnswersArray.length+1;
+				var randomOptionsArray = new Array(nRandomOptionsArray);
+
+				var countingUpArray = [];
+				for (var i=0; i < nRandomOptionsArray; i++) {
+					countingUpArray.push(i);
+				}
+
+				var randomIndexArray =[];
+				var iRandom;
+				do {
+				  iRandom = Math.floor(countingUpArray.length * Math.random());
+				  randomIndexArray.push(countingUpArray[iRandom]);
+				  countingUpArray.splice(iRandom, 1);
+				} while (countingUpArray.length > 0);
+
+				randomOptionsArray[randomIndexArray.pop()] = this.rightAnswer;
+				var wrongAnswersArrayCopy = wrongAnswersArray.slice();
+				do {
+					randomOptionsArray[randomIndexArray.pop()] = wrongAnswersArrayCopy.pop();
+				} while (randomIndexArray.length > 0);
+
+				return randomOptionsArray;
+			}; //this.randomAnswerOptions = function() {
+
+
+			this.displayTriviaQuestionDivHTML = function() {
+				$('#triviaQuestion').empty();
+				$('#triviaQuestion').append(this.questionText)
+			} //this.displayTriviaQuestionDivHTML = function() {
+
+			this.displayTriviaAnswersDivHTML = function () {
+				$('#triviaAnswers').empty();
+
+				var triviaAnswersArray = this.randomOptionsArray();
+
+
+				for (var i=0; i < triviaAnswersArray.length; i++) {
+					var triviaAnswerDiv = $('<div>');
+					var triviaAnswerText = triviaAnswersArray[i];
+					triviaAnswerDiv.html(triviaAnswerText+'<br>');
+					triviaAnswerDiv.attr('questionText',triviaAnswerText)
+					triviaAnswerDiv.on("click", function() {
+						game.timer.stop();
+						var correctAnswerSelected = checkAnswer($(this).attr('questionText'));
+						if (correctAnswerSelected) {
+							game.score.wins++;
+						} else {
+							game.score.losses++;
+						} //if (correctAnswerSelected) {
+						game.state = 'updateGame';
+						game.update();
+					});
+					$('#triviaAnswers').append(triviaAnswerDiv);
+				}
+			} //this.displayTriviaAnswerOptionsDivHTML = function () {
+		} //function triviaQuestion(questionType,questionText,rightAnswer,wrongAnswersArray) {
+
+
+		var shortestPresident = new triviaQuestion('multipleChoice','Who was the shortest President?','','James Madison',['John Quincy Adams','Franklin Pierce','George W Bush']);
+		
+		var supremeCourt = new triviaQuestion('multipleChoice','Which President also served on the Supreme Court?','','William Howard Taft',['John Marshall','James Madison','Teddy Roosevelt']);
+		var football = new triviaQuestion('multipleChoice','Who was the first President to die while in office?','','William Henry Harrison',['Abraham Lincoln','Alexander Hamilton','James Garfield'])
+
+		var fattestPresident= new triviaQuestion('multipleChoice','Which President was so fat that he had to order a custom bath tub for the White House?','.\\assets\\images\\Taft-Bathtub.jpg','Howard Taft',['Grover Cleveland','Herbert Hoover','Andrew Jackson'])
+
+		var holdingWashingtonFlag= new triviaQuestion('multipleChoice','Which Founding Father and future President is depicted holding the flag, by Washington, in this famous painting?','.\\assets\\images\\Madison-WashingtonDeleware.jpg','James Monroe',['John Adams','James Madison','Alexander Hamilton'])
+
+		var bostonMassacre= new triviaQuestion('multipleChoice','Before he was President, this founding father famously defended and acquitted the British Troops involved in the Boston Massacre.','.\\assets\\images\\Adams-BostonMassacre.jpg','John Adams',['Thomas Jefferson','George Washington','Abraham Lincoln'])
+
+		var nationalHighway= new triviaQuestion('multipleChoice','The national highways system was built during this persons Presidential Administration.','.\\assets\\images\\Eisnhower-Highway.jpg','Dwight Eisnhower',['Richard Nixon','Hebert Hoover','Franklan D. Roosevelt'])
+
+		var alaskaHawaiiStatehood= new triviaQuestion('multipleChoice','Alaska and Hawaii gained statehood during which Presidents terms','.\\assets\\images\\Eisnhower-Statehood.jpeg','Dwight Eisnhower',['Bill Clinton','Ronald Reagan','John F. Kennedy'])
+
+		var dickNamedJerry= new triviaQuestion('multipleChoice','In the recently-made-public love letters, which President nicknamed his male appendage, "Jerry?"','.\\assets\\images\\Harding-LoveLetter.jpg','Warren G. Harding',['Bill Clinton','John F. Kennedy','Millard Fillmore'])
+
+		var stockMarketCrash= new triviaQuestion('multipleChoice','This Presidents term saw the 1929 stock market crash and the halting end to the roaring 20s.','.\\assets\\images\\Hoover-Roaring20s.jpg','Herbert Hoover',['Franklin D. Roosevelt','Calvin Coolridge','Ulysses S. Grant'])
+
+		var LousianaPurchase= new triviaQuestion('multipleChoice','This Presidents administration made the Lousiana Purchase and immediately doubled the size of the U.S.','.\\assets\\images\\Jefferson-LewisClark.jpg','Thomas Jefferson',['James K. Polk','James Madison','John Adams'])
+
+		var moonSpeech= new triviaQuestion('multipleChoice','This Presidents speech at Rice University boldly proclaimed that America would put a man on the moon before the end of the decade.','.\\assets\\images\\Kennedy-MoonLanding.jpg','John F. Kennedy',['Richard Nixon','Jimmy Carter','Herbert Hoover'])
+
+		var civilWar= new triviaQuestion('multipleChoice','This Presidents election precipitated Southern cessation and the American Civil War.','.\\assets\\images\\Lincoln-CivilWar.jpg','Abraham Lincoln',['James Monroe','Ulysses S. Grant','Rutherford B. Hayes'])
+
+		var warof1812= new triviaQuestion('multipleChoice','It was during this Presidents term that America fought the War of 1812 and saw the burning of the white house.','.\\assets\\images\\Madison-War1812.jpg','James Madison',['John Adams','Thomas Jefferson','Andrew Jackson'])
+
+		var denaliName= new triviaQuestion('multipleChoice','Later renamed Denali, the highest peak in North America was originally named for this President. ','.\\assets\\images\\McKingly-Denali.jpg','William McKinley',['Theordore Roosevelt','Grover Cleveland','James K. Polk'])
+
+		var mexicanAmericanWar= new triviaQuestion('multipleChoice','This President instigated the Mexican-American War and the annexation of what would become the states of California, Utah, Arizona, and New Mexico.','.\\assets\\images\\Polk-MexicanAnnexation.png','James K. Polk',['Andrew Johnson','John Tyler','Andrew Jackson'])
+
+		var chiefJusticeSupremeCourt= new triviaQuestion('multipleChoice','This President later became Chief Justice of the Supreme Court and helped build the current Supreme Court Building.','.\\assets\\images\\Taft-SupremeCourtBuilding.jpg','William Taft',['Oliver Wendell Holmes','John Adams','Thomas Jefferson'])
+
+		var score = {
+			wins: 0,
+			losses: 0,
+			updateDisplay: function() {
+				$('#score').empty();
+				$('#score').append('wins: '+this.wins+'<br>' +'losses: '+this.losses);
+			},
+		} //var score = {
+
+		var timer = {
+			questionTimeLimit: 20,
+			timeLeft: 20,
+			startTime: new Date(),
+			history: [],
+			myTimer: '',
+			start: function() {
+				this.timeLeft = this.questionTimeLimit;
+				this.startTime = new Date();
+				$('#timer').html(game.timer.timeLeft);
+				myTimer = setInterval(this.countDown,1000);
+			}, //start: function() {
+
+			stop: function() {
+				clearTimeout(myTimer);
+				var stopTime = new Date();
+				var timeDiff = Math.round((stopTime - this.startTime)/100)/10;
+				this.history.push(timeDiff);
+			}, //stop: function() {
+
+			countDown: function() {
+				game.timer.timeLeft--;
+				$('#timer').html(game.timer.timeLeft);
+				if (game.timer.timeLeft ===0) {
+					game.timer.stop();
+					game.score.losses++;
+					game.state='updateGame';
+					game.update();
+				}//if (game.timer.timeLeft ===0) {
+			}, //countDown: function() {
+		} //var timer = {
+
+		var game = {
+			state: 'updateGame',
+			currentTriviaObject: '',
+			triviaObjectArray: '',
+			score: score,
+			timer: timer,
+			update: function() {
+				switch (this.state) {
+					case 'introduction':
+						break;
+					case 'gameSelect':
+						break;
+					case 'updateGame':
+						var nTriviaObjectArray = this.triviaObjectArray.length;
+						if (nTriviaObjectArray === 0) {
+							this.state = 'endGame';
+							this.update();
+						} else {
+							iRandom = Math.floor(nTriviaObjectArray*Math.random());
+							this.currentTriviaObject = this.triviaObjectArray[iRandom];
+							this.triviaObjectArray.splice(iRandom,1);
+							this.state = 'playTrivia';
+							this.update();
+						} //if (triviaObjectArray.length === 0) {
+						break;
+					case 'playTrivia':
+						this.currentTriviaObject.displayTriviaQuestionDivHTML();
+						this.currentTriviaObject.displayTriviaAnswersDivHTML();
+						this.score.updateDisplay();
+						this.timer.start();
+						break;
+					case 'endGame':
+						break;
+					default:
+						this.state = 'updateGame';
+						this.update();
+				} //switch (this.state) {
+			} //update: function() {
+		} //var game = {
+
+		//checkAnswers takes in the text of a button selection and determines if it's the right answer
+		function checkAnswer(answerSelection) {
+			if (answerSelection === game.currentTriviaObject.rightAnswer) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		} //this.checkAnswer = function(answerSelection) {
+
+		game.triviaObjectArray = [shortestPresident,supremeCourt,football, fattestPresident, holdingWashingtonFlag, bostonMassacre, nationalHighway, alaskaHawaiiStatehood, dickNamedJerry, stockMarketCrash, LousianaPurchase, moonSpeech, civilWar, warof1812, denaliName, mexicanAmericanWar, chiefJusticeSupremeCourt];
+		game.currentTriviaObject = game.triviaObjectArray[1];
+		game.state='playTrivia';
+		game.update();
+	</script>
+</body>
+</html>
